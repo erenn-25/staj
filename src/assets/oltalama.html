@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Action Required - Mailbox Storage Full</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f3f3f3;
+      margin: 0;
+      padding: 0;
+    }
+    .email-container {
+      max-width: 600px;
+      background: white;
+      margin: 30px auto;
+      box-shadow: 0 0 10px rgba(0,0,0,0.15);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .header {
+      background-color: #0078d4;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 22px;
+    }
+    .content {
+      padding: 30px;
+      font-size: 16px;
+      color: #333;
+    }
+    .content p {
+      margin-bottom: 20px;
+    }
+    .button {
+      display: inline-block;
+      padding: 12px 20px;
+      background-color: #0078d4;
+      color: white;
+      text-decoration: none;
+      border-radius: 4px;
+      font-weight: bold;
+    }
+    .footer {
+      font-size: 13px;
+      color: #777;
+      text-align: center;
+      padding: 20px;
+      background-color: #f9f9f9;
+    }
+    .footer p {
+      margin: 5px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="email-container">
+    <div class="header">
+      <h1>Microsoft 365</h1>
+    </div>
+    <div class="content">
+      <p><strong style="color: red;">Eylem gerekli</strong> Posta kutunuzun depolama sınırı aşıldı.</p>
+      <p>E-posta gönderip almaya devam etmek için lütfen hesabınızı doğrulayın ve depolama alanınızı yükseltin.</p>
+      <p>
+        <a class="button" href="http://localhost:5213/api/Phishing">Depolamayı Yükselt</a>
+      </p>
+      <p>24 saat içinde harekete geçmezseniz, gelen e-postalar reddedilebilir.</p>
+    </div>
+    <div class="footer">
+      <p>This message was sent by Microsoft 365 system administrator.</p>
+      <p>© 2025 Microsoft Corporation. All rights reserved.</p>
+    </div>
+  </div>
+</body>
+</html>
