@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
-import { Layout, Input, Button } from 'antd';
-
-const { Content } = Layout;
+import { Input, Button } from 'antd';
 
 const TemplateForm = () => {
   const [template, setTemplate] = useState({
@@ -34,9 +32,7 @@ const TemplateForm = () => {
   };
 
   return (
-    <Content style={{ padding: 24, maxWidth: 600 }}>
-      <h2>Template Oluştur</h2>
-
+    <div style={{ padding: '10px', maxWidth: '600px' }}>
       <Input
         placeholder="Template Başlığı"
         name="title"
@@ -53,9 +49,10 @@ const TemplateForm = () => {
         onChange={handleChange}
         style={{ marginBottom: 12 }}
       />
-
-      <Button type="primary" onClick={handleSave}>Save</Button>
-    </Content>
+                                                                            
+      <Button type="primary" onClick={handleSave}>Save</Button>           
+    </div>
+    //kaydet butonuna basınca handlesave çağırılıyor ve veri kaydediliyor
   );
 };
 
