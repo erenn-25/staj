@@ -1,113 +1,159 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Select, Button, List, Typography, message } from 'antd';
 
 const { Option } = Select;
 
-const SendMail = () => {
-  const [templates, setTemplates] = useState([]);
-  const [users, setUsers] = useState([]);
+const SendMail = ({ users, templates, groups }) => {
   const [selectedTemplateId, setSelectedTemplateId] = useState(null);
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [selectedUsers, setSelectedUsers] = useState([]);
+  const [selectedGroupId, setSelectedGroupId] = useState(null);
 
-  useEffect(() => {
-    fetch('http://localhost:5213/api/Templates')
-      .then(res => res.json())
-      .then(data => setTemplates(data))
-      .catch(() => message.error('Template verisi alınamadı'));
+  const [msgApi, contextHolder] = message.useMessage();
 
-    fetch('http://localhost:5213/api/EmailUsers')
-      .then(res => res.json())
-      .then(data => setUsers(data))
-      .catch(() => message.error('Kullanıcı verisi alınamadı'));
-  }, []);
+  const handleAddUserOrGroup = () => {
+    if (!selectedTemplateId) {
+      msgApi.warning("Önce template seçmelisin!");
+      return;
+    }
 
-  const handleAddUser = () => {
-    const user = users.find(u => u.id === selectedUserId);
-    if (user && !selectedUsers.find(u => u.id === user.id)) {
-      setSelectedUsers(prev => [...prev, user]);
+    const template = templates.find(t => t.id === selectedTemplateId);
+
+    if (selectedGroupId) {
+      const group = groups.find(g => g.id === selectedGroupId);
+      if (group && !selectedUsers.find(u => u.id === `group-${group.id}` && u.templateId === selectedTemplateId)) {
+        setSelectedUsers(prev => [
+          ...prev,
+          {
+            id: `group-${group.id}`,
+            name: group.name,
+            isGroup: true,
+            users: group.users,
+            templateId: selectedTemplateId,
+            templateTitle: template.title
+          }
+        ]);
+      }
+    } else if (selectedUserId) {
+      const user = users.find(u => u.id === selectedUserId);
+      if (user && !selectedUsers.find(u => u.id === user.id && u.templateId === selectedTemplateId)) {
+        setSelectedUsers(prev => [
+          ...prev,
+          {
+            ...user,
+            isGroup: false,
+            templateId: selectedTemplateId,
+            templateTitle: template.title
+          }
+        ]);
+      }
     }
   };
 
   const handleSend = async () => {
-    if (!selectedTemplateId || selectedUsers.length === 0) {
-      message.warning("Template ve kullanıcı seçmelisin.");
+    if (selectedUsers.length === 0) {
+      msgApi.warning("En az bir kullanıcı veya grup eklemelisin.");
       return;
     }
 
     try {
-      const selectedTemplate = templates.find(t => t.id === selectedTemplateId);
-      if (!selectedTemplate) {
-        message.error("Template bulunamadı.");
-        return;
+      for (let item of selectedUsers) {
+        const recipients = item.isGroup ? item.users.map(u => u.email) : [item.email];
+
+        const response = await fetch('http://localhost:5213/api/email/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            recipients: recipients,
+            templateSubject: item.templateTitle,
+            templateBody: templates.find(t => t.id === item.templateId).html
+          }),
+        });
+
+        if (!response.ok) throw new Error("Gönderim hatası");
       }
 
-      const recipientEmails = selectedUsers.map(u => u.email);
-
-      const response = await fetch('http://localhost:5213/api/email/send', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          recipients: recipientEmails,
-          templateSubject: selectedTemplate.title,
-          templateBody: selectedTemplate.html
-        }),
-      });
-
-      if (!response.ok) throw new Error("Gönderim hatası");
-
-      message.success("Mail başarıyla gönderildi ve kaydedildi.");
+      msgApi.success("📧 Mailler başarıyla gönderildi :)");
       setSelectedUsers([]);
       setSelectedTemplateId(null);
+      setSelectedUserId(null);
+      setSelectedGroupId(null);
     } catch (err) {
-      message.error(err.message);
+      msgApi.error(err.message);
     }
   };
 
+  const rowStyle = { display: 'flex', alignItems: 'center', marginBottom: 16 };
+
   return (
     <div style={{ padding: 10 }}>
-      <div style={{ marginBottom: 16 }}>
-        <Typography.Text strong>Template Seç:</Typography.Text>
+      {contextHolder}
+
+      {/* Grup Seç */}
+      <div style={rowStyle}>
+        <Typography.Text strong style={{ color: 'red', width: 120 }}>Grup Seç:</Typography.Text>
+        <Select
+          placeholder="Grup Seç"
+          style={{ width: 300 }}
+          value={selectedGroupId}
+          onChange={setSelectedGroupId}
+          allowClear
+        >
+          {groups.map(g => (
+            <Option key={g.id} value={g.id}>{g.name}</Option>
+          ))}
+        </Select>
+      </div>
+
+      {/* Template Seç */}
+      <div style={rowStyle}>
+        <Typography.Text strong style={{ color: 'red', width: 120 }}>Template Seç:</Typography.Text>
         <Select
           placeholder="Template Seç"
           style={{ width: 300 }}
           value={selectedTemplateId}
           onChange={setSelectedTemplateId}
         >
-          {templates.map(t => (
-            <Option key={t.id} value={t.id}>{t.title}</Option>
-          ))}
+          {templates.map(t => (<Option key={t.id} value={t.id}>{t.title}</Option>))}
         </Select>
       </div>
 
-      <div style={{ marginBottom: 16 }}>
-        <Typography.Text strong>Kullanıcı Seç:</Typography.Text>
+      {/* Kullanıcı Seç + Listeye Ekle */}
+      <div style={rowStyle}>
+        <Typography.Text strong style={{ color: 'red', width: 120 }}>Kullanıcı Seç:</Typography.Text>
         <Select
           placeholder="Kullanıcı Seç"
           style={{ width: 300 }}
           value={selectedUserId}
           onChange={setSelectedUserId}
         >
-          {users.map(u => (
-            <Option key={u.id} value={u.id}>{u.firstName} {u.lastName}</Option>
-          ))}
+          {users.map(u => (<Option key={u.id} value={u.id}>{u.firstName} {u.lastName}</Option>))}
         </Select>
-        <Button onClick={handleAddUser} style={{ marginLeft: 10 }}>Add</Button>
+        <Button color="red" variant='solid' style={{ marginLeft: 20 }} onClick={handleAddUserOrGroup}>
+          Listeye ekle
+        </Button>
       </div>
 
+      {/* Seçilen kullanıcılar / gruplar */}
       <div style={{ marginBottom: 16 }}>
-        <Typography.Text strong>Seçilen Kullanıcılar:</Typography.Text>
+        <Typography.Text strong style={{ color: 'red' }}>Seçilen Kullanıcılar / Gruplar</Typography.Text>
         <List
           bordered
           dataSource={selectedUsers}
-          renderItem={user => (
-            <List.Item>{user.firstName} {user.lastName} ({user.email})</List.Item>
+          renderItem={item => (
+            <List.Item>
+              {item.isGroup ? `Grup: ${item.name}` : `${item.firstName} ${item.lastName} (${item.email})`}
+              {item.templateTitle && ` - Template: ${item.templateTitle}`}
+            </List.Item>
           )}
-          style={{ width: 400 }}
+          style={{ width: 500, marginTop: 8 }}
         />
       </div>
 
-      <Button type="primary" onClick={handleSend}>Send</Button>
+      {/* Gönder butonu sağ alt */}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 10 }}>
+        <Button color="red" variant='solid' onClick={handleSend}>Gönder</Button>
+      </div>
     </div>
   );
 };

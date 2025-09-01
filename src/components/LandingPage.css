@@ -1,0 +1,70 @@
+.landing-container {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  text-align: center;
+  background: linear-gradient(135deg, #f9f9f9 0%, #fff 100%);
+  min-height: 100vh;
+}
+
+.landing-header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 15px 40px;
+  background-color: #b50000;
+  color: white;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+}
+
+.landing-logo {
+  height: 60px;
+}
+
+.landing-hero {
+  margin-top: 120px;
+}
+
+.landing-hero h1 {
+  font-size: 40px;
+  color: #b50000;
+  position: relative;
+  display: inline-block;
+}
+
+.landing-hero h1::after {
+  content: "";
+  display: block;
+  width: 60%;
+  height: 4px;
+  background: #b50000;
+  margin: 8px auto 0;
+  border-radius: 2px;
+}
+
+.landing-hero p {
+  font-size: 18px;
+  margin-top: 15px;
+  margin-bottom: 40px;
+  color: #333;
+}
+
+.admin-btn {
+  padding: 14px 32px;
+  border: none;
+  border-radius: 8px;
+  background: #b50000;
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(181, 0, 0, 0.3);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.admin-btn:hover {
+  background: #8a0000;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px rgba(138, 0, 0, 0.4);
+}

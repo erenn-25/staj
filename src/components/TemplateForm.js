@@ -1,11 +1,8 @@
 import React, { useState } from 'react';
 import { Input, Button } from 'antd';
 
-const TemplateForm = () => {
-  const [template, setTemplate] = useState({
-    title: '',
-    html: ''
-  });
+const TemplateForm = ({ onSave }) => {
+  const [template, setTemplate] = useState({ title: '', html: '' });
 
   const handleChange = (e) => {
     setTemplate(prev => ({
@@ -26,33 +23,49 @@ const TemplateForm = () => {
 
       alert('Template başarıyla kaydedildi!');
       setTemplate({ title: '', html: '' });
+
+      if (onSave) onSave();
     } catch (err) {
       alert(err.message);
     }
   };
 
+  const rowStyle = { display: 'flex', alignItems: 'center', marginBottom: 12 };
+  const labelStyle = { width: '140px', textAlign: 'right', marginRight: '8px', color: 'red', lineHeight: '32px' };
+  const inputStyle = { flex: 1 };
+
   return (
     <div style={{ padding: '10px', maxWidth: '600px' }}>
-      <Input
-        placeholder="Template Başlığı"
-        name="title"
-        value={template.title}
-        onChange={handleChange}
-        style={{ marginBottom: 12 }}
-      />
+      {/* Template Başlığı */}
+      <div style={rowStyle}>
+        <div style={labelStyle}>Template Başlığı:</div>
+        <Input
+          placeholder="Template Başlığı"
+          name="title"
+          value={template.title}
+          onChange={handleChange}
+          style={inputStyle}
+        />
+      </div>
 
-      <Input.TextArea
-        placeholder="Template HTML Metni"
-        rows={8}
-        name="html"
-        value={template.html}
-        onChange={handleChange}
-        style={{ marginBottom: 12 }}
-      />
-                                                                            
-      <Button type="primary" onClick={handleSave}>Save</Button>           
+      {/* Template HTML Metni */}
+      <div style={rowStyle}>
+        <div style={{ ...labelStyle, paddingTop: '6px', lineHeight: 'normal' }}>Template HTML:</div>
+        <Input.TextArea
+          placeholder="Template HTML Metni"
+          rows={6}
+          name="html"
+          value={template.html}
+          onChange={handleChange}
+          style={inputStyle}
+        />
+      </div>
+
+      {/* Kaydet Butonu sağ alt */}
+      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+        <Button color="red" variant='solid' onClick={handleSave}>Kaydet</Button>
+      </div>
     </div>
-    //kaydet butonuna basınca handlesave çağırılıyor ve veri kaydediliyor
   );
 };
 

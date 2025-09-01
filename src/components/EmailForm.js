@@ -1,67 +1,94 @@
-import React, { useState } from 'react'; //usestate reactın state yönetimi için kullandığımız bir fonksiyon yani sayfa yenilenmeden bileşenin içinde veri saklamamızı sağlıyor
-import { Input, Button } from 'antd'; //ant design kütüphanesinden gelen hazır görünümlü input (yazı kutusu) ve buton bileşenleri alınıyor
+import React, { useState } from 'react';
+import { Input, Button } from 'antd';
 
-const EmailForm = () => {                     //email form adında fonksiyonel component tanımlandı
-  const [formData, setFormData] = useState({  //bu bileşen kullanıcıdan ad,soyad ve eposta bilgisi alacak
-    firstName: '',                            //formdata form alanlarının değerlerini saklayan js nesnesi ilk değerler olarak boş verilmiş setformdata formdatayı değiştirmek için kullanılan fonksiyondur
-    lastName: '',                             //usestate anlık yazıları saklıyor
-    email: '',
-  });
+const EmailForm = ({ onSave }) => {
+  const [formData, setFormData] = useState({ firstName: '', lastName: '', email: '' });
 
-  const handleChange = (e) => {            //handlechange fonksiyonu inputlarda  değişiklik oldukça formdata güncelliyor parametre (e) inputa yazı yazmak için seçmek için kullanılır
-    setFormData(prev => ({                //prev önceki formdata değeri
-      ...prev,                            //...prev önceki tüm key value çiftlerini kopyalar
-      [e.target.name]: e.target.value    //hangi input değiştiyse onun nameine karşılık gelen veriyi günceller
-    }));                                  //e.target.value o inputa yazılan yeni değer
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+                                                                                                                               // Ad ve Soyad için sadece harfleri ve boşluğu kabul et
+    if ((name === 'firstName' || name === 'lastName') && /[^a-zA-ZğüşöçıİĞÜŞÖÇ\s]/.test(value)) { 
+      return;                                                                                                                 // sayı veya özel karakter varsa ekleme
+    }
+
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleSave = async () => {              //handlesave fonksiyonu backendde post isteği yapıyor başarılı olursa kullanıcıya mesaj gösterip formu temizliyor                                             
-    try {                                       //async yazmasının sebebi asenkron çalışıyor yani bazı işlemleri bekleyip sonra devam ediyor
-      const response = await fetch('http://localhost:5213/api/EmailUsers', {  //fetch backende C# apiye http isteği atıyoruz post isteği yani backende yeni kayıt ekliyoruz
-        method: 'POST',   //get veri çeker post yeni veri ekler put veri günceller delete veri siler
-        headers: { 'Content-Type': 'application/json' }, //backende json gönderiyoruz
-        body: JSON.stringify(formData) //formdata formda girilen isim,soyisim, eposta bilgilerini tutuyor,JSON.stringify javascriptteki nesneyi json çevirir
+  const handleSave = async () => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!formData.firstName || !formData.lastName || !formData.email) {
+      alert('Tüm alanlar doldurulmalıdır!');
+      return;
+    }
+
+    if (!emailRegex.test(formData.email)) {
+      alert('Geçerli bir email giriniz!');
+      return;
+    }
+
+    try {
+      const response = await fetch('http://localhost:5213/api/EmailUsers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
       });
 
       if (!response.ok) throw new Error('Kayıt başarısız');
 
       alert('Başarıyla kaydedildi!');
-      setFormData({ firstName: '', lastName: '', email: '' }); //kayıt başarılı olursa formu temizliyor
+      setFormData({ firstName: '', lastName: '', email: '' });
+
+      if (onSave) onSave(); // Home.js’deki kullanıcı listesini anında güncelle
     } catch (err) {
       alert(err.message);
     }
   };
 
+  const rowStyle = { display: 'flex', alignItems: 'center', marginBottom: '12px' };
+  const labelStyle = { width: '70px', textAlign: 'right', marginRight: '8px' };
+  const inputStyle = { flex: 1, height: '32px' };
+  const buttonContainerStyle = { display: 'flex', justifyContent: 'flex-end', marginTop: '20px' };
+
   return (
     <div style={{ padding: '10px', maxWidth: '400px' }}>
-      <Input
-        name="firstName" //input alanının adı
-        placeholder="Adı" //kutunun içine adı yazıyor yazdıkça kayboluyor
-        value={formData.firstName} //kutunun içindeki değer formdata stateinden geliyor
-        onChange={handleChange}  //kullanıcı yazı yazdğında handlechange çalışıyor
-        style={{ marginBottom: '12px' }} //her kutunun altına 12px boşluk bırakıyor
-      />
-      <Input
-        name="lastName"
-        placeholder="Soyadı"
-        value={formData.lastName}
-        onChange={handleChange}
-        style={{ marginBottom: '12px' }}
-      />
-      <Input
-        name="email"
-        type="email"  //bu kutuya e-posta girilecek bilgisi verildi.Yanlış formatta yazılırsa hata verebilir.
-        placeholder="Email"
-        value={formData.email}
-        onChange={handleChange}
-        style={{ marginBottom: '12px' }}
-      />
-      <Button type="primary" onClick={handleSave}>Save</Button>
-    </div>
-    //padding 10px kutunun içindeki yazılar ve kenar arasına boşluk bırakır, maxWidth 400px ile kutunun genişliğini sınırlar
-    //type="primary" Ant Design’da mavi ve ön planda görünen buton stili.
-    //onClick butona tıklandığında handleSave fonksiyonunu çağırır
+      <div style={rowStyle}>
+        <div style={{ ...labelStyle, color: 'red' }}>Ad:</div>
+        <Input
+          name="firstName"
+          placeholder="Adı"
+          value={formData.firstName}
+          onChange={handleChange}
+          style={inputStyle}
+        />
+      </div>
+      <div style={rowStyle}>
+        <div style={{ ...labelStyle, color: 'red' }}>Soyad:</div>
+        <Input
+          name="lastName"
+          placeholder="Soyadı"
+          value={formData.lastName}
+          onChange={handleChange}
+          style={inputStyle}
+        />
+      </div>
+      <div style={rowStyle}>
+       <div style={{ ...labelStyle, color: 'red' }}>E-mail:</div>
+        <Input
+          name="email"
+          type="email"
+          placeholder="Email"
+          value={formData.email}
+          onChange={handleChange}
+          style={inputStyle}
+        />
+      </div>
 
+      <div style={buttonContainerStyle}>
+        <Button color='red' variant='solid' onClick={handleSave}>Kaydet</Button>
+      </div>
+    </div>
   );
 };
 

@@ -1,0 +1,77 @@
+.windows-login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: linear-gradient(to bottom, #ffffff, #ffffff);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.login-box {
+    background-color: white;
+    padding: 40px;
+    border-radius: 12px;
+    width: 360px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.4);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.login-box::before {
+    content: "";
+    display: block;
+    width: 200px;
+    height: 60px;
+    margin: 0 auto 20px auto;
+    background: url('https://aadcdn.msftauth.net/shared/1.0/content/images/microsoft_logo_564db913a7fa0ca42727161c6d031bef.svg') no-repeat center;
+    background-size: contain;
+}
+
+.login-box h2 {
+    margin-bottom: 25px;
+    color: #010101;
+    font-size: 22px;
+    font-weight: 600;
+}
+
+.login-box input {
+    width: 90%;
+    padding: 12px;
+    margin: 12px 0;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.login-box input:focus {
+    border-color: #0078d7;
+    box-shadow: 0 0 8px rgba(0, 120, 215, 0.5);
+    outline: none;
+}
+
+.login-box button {
+    width: 95%;
+    padding: 12px;
+    margin-top: 20px;
+    border: none;
+    border-radius: 6px;
+    background-color: #0078d7;
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.2s;
+}
+
+.login-box button:hover {
+    background-color: #005a9e;
+    transform: scale(1.02);
+}
+
+.message {
+    margin-top: 15px;
+    font-weight: bold;
+    color: red;
+}
